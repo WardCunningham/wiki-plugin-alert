@@ -1,0 +1,37 @@
+{
+  "title": "About Alert Plugin",
+  "story": [
+  {
+    "type": "paragraph",
+    "id": "692a2bd2abdb6db3",
+    "text": "Here we describe the purpose of the plugin and include a sample."
+  },
+  {
+    "type": "alert",
+    "id": "ae9582cba7b98735",
+    "text": "This is text in the new plugin. You can *double-click* to edit it too."
+  }
+],
+  "journal": [
+  {
+    "type": "create",
+    "item": {
+      "title": "About Alert Plugin",
+      "story": [
+  {
+    "type": "paragraph",
+    "id": "692a2bd2abdb6db3",
+    "text": "Here we describe the purpose of the plugin and include a sample."
+  },
+  {
+    "type": "alert",
+    "id": "ae9582cba7b98735",
+    "text": "This is text in the new plugin. You can *double-click* to edit it too."
+  }
+]
+    },
+    "date": 1558802777000,
+    "certificate": "from mkplugin.sh"
+  }
+]
+}

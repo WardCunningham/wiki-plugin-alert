@@ -1,6 +1,6 @@
 {
   "name": "wiki-plugin-alert",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Federated Wiki - Alert Plugin",
   "keywords": [
     "alert",
@@ -9,9 +9,9 @@
     "plugin"
   ],
   "author": {
-    "name": "Your Name",
-    "email": "you@example.com",
-    "url": "http://example.com"
+    "name": "Ward Cunningham",
+    "email": "ward@c2.com",
+    "url": "http://ward.asia.wiki.org/alert-prototype.html"
   },
   "contributors": [],
   "scripts": {
@@ -29,10 +29,10 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/fedwiki/wiki-plugin-alert.git"
+    "url": "https://github.com/wardcunningham/wiki-plugin-alert.git"
   },
   "bugs": {
-    "url": "https://github.com/fedwiki/wiki-plugin-alert/issues"
+    "url": "https://github.com/wardcunningham/wiki-plugin-alert/issues"
   },
   "engines": {
     "node": ">=0.10"

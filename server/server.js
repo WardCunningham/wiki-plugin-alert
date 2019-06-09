@@ -1,17 +1,102 @@
 // alert plugin, server-side component
 // These handlers are launched with the wiki server.
 
-(function() {
-  const startServer = params => {
-    var app = params.app,
-        argv = params.argv;
+const events = require('events')
 
-    return app.get('/plugin/alert/:thing', (req, res) => {
-      var thing = req.params.thing;
-      return res.json({thing});
-    });
-  };
+function startServer (params) {
 
-  module.exports = {startServer};
+  let app = params.app
+  let argv = params.argv
 
-}).call(this);
+  let detectors = {} // slug/item => annotated schedule
+  let emitters = emittersFor(app) // "slug/item" => emitter
+
+  function emittersFor (app) {
+    if (!app.serviceEmitters) {
+      app.serviceEmitters = {}
+    }
+    return app.serviceEmitters
+  }
+
+  function emitterFor (slugitem) {
+    if (!emitters[slugitem]) {
+      emitters[slugitem] = new events.EventEmitter()
+    }
+    return emitters[slugitem]
+  }
+
+  // {
+  //   sources: [
+  //     {slugitem: "slug/item", service: {...}, listener: function},
+  //     {slugitem: "slug/item", service: {...}}
+  //   ]
+  // }
+
+  function activate(slugitem, schedule) {
+    for (let source of schedule.sources||[]) {
+      source.listener = (notice) => notify(source, notice)
+      let emitter = emitterFor(source.slugitem)
+      console.log('emitter for ', source.slugitem, emitter)
+      emitter.on('notice',source.listener)
+    }
+    return schedule
+
+    function notify(source, notice) {
+      console.log({slugitem, notice})
+    }
+  }
+
+  function deactivate(schedule) {
+    for (let source of schedule.sources||[]) {
+      emitterFor(source.slugitem).removeListener('notice', source.listener)
+    }
+  }
+
+  function start(slugitem, schedule) {
+    console.log({slugitem, schedule})
+    detectors[slugitem] = activate(slugitem, schedule)
+  }
+
+  function stop(slugitem) {
+    console.log({slugitem})
+    deactivate(detectors[slugitem]||{sources:[]})
+    delete detectors[slugitem]
+  }
+
+  function owner(req, res, next) {
+    if(app.securityhandler.isAuthorized(req)) {
+      next()
+    } else {
+      res.status(403).send({
+        error: 'operation reserved for site owner'
+      })
+    }
+  }
+
+
+  // {
+  //   action: "start",
+  //   schedule: {...}
+  // }
+
+  app.post('/plugin/alert/:slug/id/:id/', owner, (req, res) => {
+    let slug = req.params['slug']
+    let item = req.params['id']
+    let slugitem = `${slug}/${item}`
+    let command = req.body
+    if (command.action) {
+      if (command.action == 'start') {
+        start(slugitem, command.schedule)
+      } else if (command.action == 'stop') {
+        stop(slugitem)
+      }
+    }
+    let status = detectors[slugitem] ? 'active' : 'inactive'
+    res.setHeader('Content-Type', 'application/json');
+    res.send(JSON.stringify({status}));
+  })
+
+}
+
+module.exports = {startServer};
+

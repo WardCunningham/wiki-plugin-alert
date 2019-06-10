@@ -3,6 +3,9 @@
 
 const events = require('events')
 
+const AWS = require('aws-sdk');
+AWS.config.update({region: 'us-east-1'});
+
 function startServer (params) {
 
   let app = params.app
@@ -34,15 +37,16 @@ function startServer (params) {
 
   function activate(slugitem, schedule) {
     for (let source of schedule.sources||[]) {
-      source.listener = (notice) => notify(source, notice)
+      source.listener = (data) => notify(source, data)
       let emitter = emitterFor(source.slugitem)
-      console.log('emitter for ', source.slugitem, emitter)
       emitter.on('notice',source.listener)
     }
     return schedule
 
-    function notify(source, notice) {
-      console.log({slugitem, notice})
+    async function notify(source, data) {
+      let Message = `${data.signal} trouble: ${data.notice}`
+      let params = {Message, TopicArn: 'arn:aws:sns:us-east-1:581084879107:ping-wiki-servers'}
+      let result = await new AWS.SNS({apiVersion: '2010-03-31'}).publish(params).promise();
     }
   }
 

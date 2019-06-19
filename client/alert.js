@@ -32,8 +32,69 @@
     return {sources, output}
   }
 
+  function editor($item, item) {
+    let $editor = $(
+      `<form style="background-color:#eee; padding:15px; margin-block-start:1em; margin-block-end:1em;">
+        <center>
+          <input name=access type=text style="width:95%;" placeholder="AWS Access Key Id"></input><br>
+          <input name=secret type=text style="width:95%;" placeholder="AWS Secret Access Key"></input><br>
+          <input name=region type=text style="width:95%;" placeholder="AWS Region"></input><br>
+          <input name=snsarn type=text style="width:95%;" placeholder="AWS SNS ARN"></input><br>
+          <button>test</button>
+        </center>
+      </form>`
+    )
+    $editor
+      .focusout(focusoutHandler)
+      .bind('keydown',keydownHandler)
+
+    function keydownHandler (e) {
+      if (e.which == 27) {// esc for save
+        e.preventDefault()
+        $editor.focusout()
+        return false
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.which == 83) { // ctrl-s for save
+        e.preventDefault()
+        $editor.focusout()
+        return false
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.which == 73) { // ctrl-i for information
+        e.preventDefault()
+        page = e.shiftKey ? null : $(e.target).parents('.page') 
+        link.doInternalLink("about #{item.type} plugin", page)
+        return false
+      }
+
+      if ((e.ctrlKey || e.metaKey) && e.which == 77) { // ctrl-m for menu
+        e.preventDefault()
+        $item.removeClass(item.type).addClass(item.type = 'factory')
+        $editor.focusout()
+        return false
+      }
+    }
+
+    function focusoutHandler (e) {
+      $item.removeClass('textEditing')
+      $textarea.unbind()
+      $page = $item.parents('.page:first')
+      plugin.do($item.empty(), item)
+    }
+
+    $item.addClass('textEditing')
+    $item.unbind()
+    $item.html($editor)
+    $item.find('button').click(e => {
+      console.log('click',e)
+    })
+    $item.focus()
+  }
+
   function emit($item, item) {
     let parsed = parse(item.text)
+    let $editor = $()
     $item.append(`
       <div style="background-color:#eee; padding:15px; margin-block-start:1em; margin-block-end:1em;">
         <div class=binding>waiting</div>
@@ -44,7 +105,7 @@
   function bind($item, item) {
     $item.dblclick(() => {
       action({action:'stop'})
-      return wiki.textEditor($item, item);
+      return editor($item, item);
     });
 
     let $button = $item.find('button')
